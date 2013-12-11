@@ -16,6 +16,8 @@ module.exports={
 	create:function(callback,options){
 		if(options===undefined)options={};
 		if(options.phantomPath===undefined)options.phantomPath='phantomjs';
+		if(options.onStdOut===undefined) options.onStdOut=function(data){return console.log('phantom stdout: '+data);};
+		if(options.onStdErr===undefined) options.onStdErr=function(data){return console.warn('phantom stderr: '+data);};
 		if(options.parameters===undefined)options.parameters={};
 
 		function spawnPhantom(port,callback){
@@ -26,12 +28,8 @@ module.exports={
 			args=args.concat([__dirname + '/bridge.js', port]);
 
 			var phantom=child.spawn(options.phantomPath,args);
-			phantom.stdout.on('data',function(data){
-				return console.log('phantom stdout: '+data);
-			});
-			phantom.stderr.on('data',function(data){
-				return console.warn('phantom stderr: '+data);
-			});
+			phantom.stdout.on('data',options.onStdOut);
+			phantom.stderr.on('data',options.onStdErr);
 			var hasErrors=false;
 			phantom.on('error',function(){
 				hasErrors=true;
@@ -202,6 +200,7 @@ module.exports={
 						exit:function(callback){
 							phantom.removeListener('exit',prematureExitHandler); //an exit is no longer premature now
 							request(socket,[0,'exit'],callbackOrDummy(callback));
+							phantom.kill 'SIGTERM'
 						},
 						on: function(){
 							phantom.on.apply(phantom, arguments);
