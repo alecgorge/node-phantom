@@ -3,7 +3,6 @@
 var http=require('http');
 var socketio=require('socket.io');
 var child=require('child_process');
-var process=require('process')
 
 function callbackOrDummy(callback){
 	if(callback===undefined)callback=function(){};
