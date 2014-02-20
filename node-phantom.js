@@ -3,6 +3,7 @@
 var http=require('http');
 var socketio=require('socket.io');
 var child=require('child_process');
+var process=require('process')
 
 function callbackOrDummy(callback){
 	if(callback===undefined)callback=function(){};
@@ -200,7 +201,8 @@ module.exports={
 						exit:function(callback){
 							phantom.removeListener('exit',prematureExitHandler); //an exit is no longer premature now
 							request(socket,[0,'exit'],callbackOrDummy(callback));
-							phantom.kill('SIGTERM');
+							
+							process.kill(phantom.pid);
 						},
 						on: function(){
 							phantom.on.apply(phantom, arguments);
